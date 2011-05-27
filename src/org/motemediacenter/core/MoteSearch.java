@@ -63,11 +63,13 @@ public class MoteSearch {
                     public void irImageChanged(IrCameraEvent evt) {
                             try {
                                 if (evt.getIrPoint(0).getX() < 1023 || evt.getIrPoint(0).getY() < 1023) {
-                                    // o eixo X eh invertido
-                                    int width = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-                                    int height = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+                                    // TODO pegar o tamanho da tela
+                                    int width = 1280; // (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+                                    int height = 800; //(int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
                                     int x = (int) (width * (1 - ((1023 - evt.getIrPoint(0).getX()) / 1023)));
                                     int y = (int) (height * (1 - ((768 - evt.getIrPoint(0).getY()) / 768)));
+
+                                    // o eixo X eh invertido
                                     robot.mouseMove(width - x, y);
                                     System.out.println(evt.getIrPoint(0).toString() + " -> (" + x + ", " + y + ")");
                                 }
