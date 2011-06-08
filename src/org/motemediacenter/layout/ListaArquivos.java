@@ -12,6 +12,8 @@
 package org.motemediacenter.layout;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.PrintStream;
 
 /**
  *
@@ -37,8 +39,7 @@ public class ListaArquivos extends javax.swing.JPanel {
 
     // add a new file to this panel
     public void addFile (File f) {
-        Arquivo arquivo = new Arquivo(f);
-        arquivo.setParent(this);
+        Arquivo arquivo = new Arquivo(this, f);
         arquivo.setVisible(true);
 
         panFiles.add(arquivo);
@@ -60,17 +61,17 @@ public class ListaArquivos extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        scrScrollBar = new javax.swing.JScrollPane();
-        panFiles = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
         btnIr = new javax.swing.JButton();
         txtPath = new javax.swing.JTextField();
         btnVoltar = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        scrScrollBar = new javax.swing.JScrollPane();
+        panFiles = new javax.swing.JPanel();
+        btnRolarDireita = new javax.swing.JButton();
 
-        scrScrollBar.setName("scrScrollBar"); // NOI18N
-
-        panFiles.setName("panFiles"); // NOI18N
-        panFiles.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
-        scrScrollBar.setViewportView(panFiles);
+        jButton1.setText("jButton1");
+        jButton1.setName("jButton1"); // NOI18N
 
         btnIr.setText("Ir");
         btnIr.setName("btnIr"); // NOI18N
@@ -90,6 +91,29 @@ public class ListaArquivos extends javax.swing.JPanel {
             }
         });
 
+        jButton3.setText("<");
+        jButton3.setName("jButton3"); // NOI18N
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        scrScrollBar.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrScrollBar.setName("scrScrollBar"); // NOI18N
+
+        panFiles.setName("panFiles"); // NOI18N
+        panFiles.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+        scrScrollBar.setViewportView(panFiles);
+
+        btnRolarDireita.setText(">");
+        btnRolarDireita.setName("btnRolarDireita"); // NOI18N
+        btnRolarDireita.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRolarDireitaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -97,10 +121,15 @@ public class ListaArquivos extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(btnVoltar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtPath, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+                .addComponent(txtPath, javax.swing.GroupLayout.DEFAULT_SIZE, 573, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnIr))
-            .addComponent(scrScrollBar, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jButton3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scrScrollBar, javax.swing.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRolarDireita))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -110,7 +139,10 @@ public class ListaArquivos extends javax.swing.JPanel {
                     .addComponent(btnIr, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrScrollBar, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(scrScrollBar, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                    .addComponent(btnRolarDireita, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -127,10 +159,27 @@ public class ListaArquivos extends javax.swing.JPanel {
         }
 }//GEN-LAST:event_btnVoltarActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        int value = scrScrollBar.getHorizontalScrollBar().getValue();
+        int bloco = scrScrollBar.getHorizontalScrollBar().getBlockIncrement();
+
+        scrScrollBar.getHorizontalScrollBar().setValue(value - 3 * bloco);
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void btnRolarDireitaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRolarDireitaActionPerformed
+        int value = scrScrollBar.getHorizontalScrollBar().getValue();
+        int bloco = scrScrollBar.getHorizontalScrollBar().getBlockIncrement();
+
+        scrScrollBar.getHorizontalScrollBar().setValue(value + 3 * bloco);
+    }//GEN-LAST:event_btnRolarDireitaActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnIr;
+    private javax.swing.JButton btnRolarDireita;
     private javax.swing.JButton btnVoltar;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton3;
     private javax.swing.JPanel panFiles;
     private javax.swing.JScrollPane scrScrollBar;
     private javax.swing.JTextField txtPath;
@@ -142,15 +191,43 @@ public class ListaArquivos extends javax.swing.JPanel {
 
         setVisible(false);
         
-        txtPath.setText(new File(path).getAbsolutePath());
+        File fpath = new File(path);
+        if (fpath.exists()) {
+            // salva o diretorio atual entre os diretorios recentes
+            try {
+                File recente_path = new File("resources/configs/path");
+                PrintStream out = new PrintStream(recente_path);
+                out.println(path);
+                out.close();
+            } catch (Exception e) { System.err.println("Erro ao salvar path: "+ e.getMessage()); }
 
-        File aqui = new File(path);
-        File[] arquivos = aqui.listFiles();
-        if (arquivos != null)
-            for (int i = 0; i < arquivos.length; i++)
-                addFile(arquivos[i]);
+            txtPath.setText(fpath.getAbsolutePath());
 
-        setVisible(true);
+            // primeiro exibe os diretorios
+            File aqui = new File(path);
+            File[] arquivos = aqui.listFiles(new FileFilter() {
+
+                public boolean accept(File pathname) {
+                    return pathname.isDirectory() && !pathname.isHidden();
+                }
+            });
+            if (arquivos != null)
+                for (int i = 0; i < arquivos.length; i++)
+                    addFile(arquivos[i]);
+
+            // depois exibe os arquivos
+            arquivos = aqui.listFiles(new FileFilter() {
+
+                public boolean accept(File pathname) {
+                    return pathname.isFile() && !pathname.isHidden();
+                }
+            });
+            if (arquivos != null)
+                for (int i = 0; i < arquivos.length; i++)
+                    addFile(arquivos[i]);
+
+            setVisible(true);
+        }
     }
 
 }

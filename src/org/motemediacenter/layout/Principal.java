@@ -12,6 +12,14 @@
 package org.motemediacenter.layout;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Scanner;
+import motej.Mote;
+import motej.StatusInformationReport;
+import motej.event.MoteDisconnectedEvent;
+import motej.event.MoteDisconnectedListener;
+import motej.event.StatusInformationListener;
+import org.jdesktop.application.SingleFrameApplication;
 import org.motemediacenter.core.MoteSearch;
 
 /**
@@ -22,14 +30,33 @@ public class Principal extends javax.swing.JFrame {
     private MoteSearch ms;
 
     /** Creates new form Principal */
-    public Principal() {
+    public Principal(SingleFrameApplication app) {
         ms = new MoteSearch();
 
         initComponents();
 
-        lstRecent.addFile(new File("/dados/Música/Escolher/Nightwish/Once/02 - Wish I Had An Angel.mp3"));
-        lstRecent.addFile(new File("/dados/Vídeos/Cade meu Headphone (completo).avi"));
-        lstFile.loadPath(System.getProperty("user.dir"));
+        lblMoteStatusText.setText("Desconectado.");
+        lblMoteBateryText.setText("-");
+
+        File resources = new File("resources/configs");
+        if (!resources.exists()) resources.mkdirs();
+
+        File recente = new File("resources/configs/recentes");
+        try {
+            Scanner s = new Scanner(new FileInputStream(recente));
+            while (s.hasNextLine()) {
+                lstRecent.addFile(new File(s.nextLine()));
+            }
+        } catch (Exception e) { System.err.println("Nao tem o arquivo de recentes: " + e.getMessage()); }
+
+        String path = System.getProperty("user.dir");
+        try {
+            File fpath = new File("resources/configs/path");
+            Scanner s = new Scanner(new FileInputStream(fpath));
+            path = s.nextLine();
+        } catch (Exception e) { System.err.println("Nao tem o arquivo de path inicial: " + e.getMessage()); }
+        
+        lstFile.loadPath(path);
         lstFile.setShowNavigation(true);
     }
 
@@ -59,6 +86,7 @@ public class Principal extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Mote Media Center");
         setName("frmPrincipal"); // NOI18N
+        setResizable(false);
 
         panMote.setBorder(javax.swing.BorderFactory.createTitledBorder("Wii Mote"));
         panMote.setName("panMote"); // NOI18N
@@ -124,7 +152,7 @@ public class Principal extends javax.swing.JFrame {
             panRecentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panRecentLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lstRecent, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+                .addComponent(lstRecent, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -145,7 +173,7 @@ public class Principal extends javax.swing.JFrame {
         panFileLayout.setVerticalGroup(
             panFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panFileLayout.createSequentialGroup()
-                .addComponent(lstFile, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+                .addComponent(lstFile, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -181,12 +209,12 @@ public class Principal extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panFile, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panRecent, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panMote, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(panFile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panRecent, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panMote, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -212,6 +240,26 @@ public class Principal extends javax.swing.JFrame {
     private void mnuPrincipalConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuPrincipalConectarActionPerformed
         // TODO exibir uma janelinha com ajuda
         ms.connect();
+
+        if (ms.getMote() != null) {
+            lblMoteStatusText.setText("Conectado.");
+            ms.getMote().addStatusInformationListener(new StatusInformationListener() {
+
+                public void statusInformationReceived(StatusInformationReport sir) {
+                    lblMoteBateryText.setText(sir.getBatteryLevel() + " %");
+                }
+            });
+            ms.getMote().addMoteDisconnectedListener(new MoteDisconnectedListener<Mote>() {
+
+                public void moteDisconnected(MoteDisconnectedEvent<Mote> mde) {
+                    lblMoteStatusText.setText("Desconectado.");
+                    lblMoteBateryText.setText("-");
+                }
+            });
+        } else {
+            lblMoteStatusText.setText("Desconectado.");
+            lblMoteBateryText.setText("-");
+        }
     }//GEN-LAST:event_mnuPrincipalConectarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

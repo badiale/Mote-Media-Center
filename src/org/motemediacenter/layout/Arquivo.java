@@ -11,9 +11,12 @@
 
 package org.motemediacenter.layout;
 
+import java.awt.Color;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.Scanner;
-import javax.activation.MimetypesFileTypeMap;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -22,24 +25,59 @@ import javax.activation.MimetypesFileTypeMap;
 public class Arquivo extends javax.swing.JPanel {
     private File f;
     private ListaArquivos parent;
-
-    public void setParent(ListaArquivos parent) { this.parent = parent; }
-
-    @Override
-    public ListaArquivos getParent() { return this.parent; }
+    private LabelAnimator la;
 
     /** Creates new form Arquivo */
-    public Arquivo(File f) {
-        initComponents();
+    public Arquivo(ListaArquivos parent, File f) {
+        this.parent = parent;
 
-        // tipo do arquivo
-        String fileTypeName = new MimetypesFileTypeMap().getContentType(f);
+        initComponents();
 
         this.f = f;
         lblDescricao.setText(f.getName());
         lblDescricao.setToolTipText(f.getName());
-        lblImagem.setText(fileTypeName);
-        lblImagem.setToolTipText(fileTypeName);
+        String fileName = f.getName().toLowerCase();
+
+        if (f.isDirectory()) {
+            lblImagem.setIcon(new ImageIcon("resources/images/folder.png"));
+
+        // audio
+        } else if (
+                fileName.endsWith(".mp3") ||
+                fileName.endsWith(".wav") ||
+                fileName.endsWith(".m4a")
+                ) {
+            lblImagem.setIcon(new ImageIcon("resources/images/audio.png"));
+        // video
+        } else if (
+                fileName.endsWith(".mp4") ||
+                fileName.endsWith(".wmv") ||
+                fileName.endsWith(".avi") ||
+                fileName.endsWith(".mkv") ||
+                fileName.endsWith(".flv")
+                ) {
+            lblImagem.setIcon(new ImageIcon("resources/images/video.png"));
+
+        // imagens
+        } else if (
+                fileName.endsWith(".png") ||
+                fileName.endsWith(".jpg") ||
+                fileName.endsWith(".jpeg") ||
+                fileName.endsWith(".gif") ||
+                fileName.endsWith(".bmp")
+                ) {
+            lblImagem.setIcon(new ImageIcon("resources/images/image.png"));
+
+        // apresentacoes
+        } else if (
+                fileName.endsWith(".ppt")
+                ) {
+            lblImagem.setIcon(new ImageIcon("resources/images/presentation.png"));
+        
+        // arquivo desconhecido
+        } else {
+            lblImagem.setIcon(new ImageIcon("resources/images/generic.png"));
+        }
     }
 
     /** This method is called from within the constructor to
@@ -54,9 +92,16 @@ public class Arquivo extends javax.swing.JPanel {
         lblImagem = new javax.swing.JLabel();
         lblDescricao = new javax.swing.JLabel();
 
-        lblImagem.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        setPreferredSize(new java.awt.Dimension(100, 100));
+
         lblImagem.setName("lblImagem"); // NOI18N
         lblImagem.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                lblImagemMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                lblImagemMouseExited(evt);
+            }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 lblImagemMouseReleased(evt);
             }
@@ -71,30 +116,38 @@ public class Arquivo extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lblDescricao, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblImagem, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(lblImagem, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblImagem, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblImagem, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblDescricao)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void lblImagemMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblImagemMouseReleased
         if (f.isDirectory()) {
-            ListaArquivos la = this.getParent();
-            la.loadPath(f.getAbsolutePath());
+            ListaArquivos larq = this.parent;
+            larq.loadPath(f.getAbsolutePath());
         } else {
             try {
+                try {
+                    File recente_path = new File("resources/configs/recentes");
+                    if (!recente_path.exists()) recente_path.createNewFile();
+                    BufferedWriter out = new BufferedWriter(new FileWriter(recente_path, true));
+                    out.write(f.getPath() + "\n");
+                    out.close();
+                } catch (Exception e) { System.err.println("Erro ao salvar arquivo recente: "+ e.getMessage()); }
+
                 String[] cmd = new String[2];
                 // TODO executar o mplayer corretamente
                 //cmd[0] = "mplayer";
@@ -110,6 +163,29 @@ public class Arquivo extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_lblImagemMouseReleased
+
+    private void lblImagemMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblImagemMouseEntered
+        parent.setVisible(false);
+        Color c = new Color(0, 0, 130, 50);
+        setBackground(c);
+        parent.setVisible(true);
+
+        if (lblDescricao.getFontMetrics(lblDescricao.getFont()).stringWidth(lblDescricao.getText()) > 76) {
+            la = new LabelAnimator(parent, lblDescricao);
+            la.start();
+        } else { la = null; }
+    }//GEN-LAST:event_lblImagemMouseEntered
+
+    private void lblImagemMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblImagemMouseExited
+        parent.setVisible(false);
+        setBackground(null);
+        parent.setVisible(true);
+
+        if (la != null) {
+            la.para();
+            la = null;
+        }
+    }//GEN-LAST:event_lblImagemMouseExited
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
